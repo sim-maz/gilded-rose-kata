@@ -101,7 +101,7 @@ namespace csharp
         }
 
         [Test]
-        public void UpdateQuality_Sulfuras_UnchangedQuality()
+        public void UpdateQuality_Sulfuras_Unchanged()
         {
             IList<Item> Items = new List<Item>
             {
@@ -111,7 +111,9 @@ namespace csharp
             GildedRose app = new GildedRose(Items);
             app.UpdateQuality();
             Assert.AreEqual(80, Items[0].Quality);
+            Assert.AreEqual(10, Items[0].SellIn);
             Assert.AreEqual(70, Items[1].Quality);
+            Assert.AreEqual(-1, Items[1].SellIn);
         }
 
         [Test]
@@ -134,12 +136,14 @@ namespace csharp
                 new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 12, Quality = 10 },
                 new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 10, Quality = 10 },
                 new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 5, Quality = 10 },
+                new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 5, Quality = 50 },
             };
             GildedRose app = new GildedRose(Items);
             app.UpdateQuality();
             Assert.AreEqual(11, Items[0].Quality);
             Assert.AreEqual(12, Items[1].Quality);
             Assert.AreEqual(13, Items[2].Quality);
+            Assert.AreEqual(50, Items[3].Quality);
         }
     }
 }

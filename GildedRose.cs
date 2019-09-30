@@ -5,6 +5,12 @@ namespace csharp
     public class GildedRose
     {
         IList<Item> Items;
+
+        private const int MAX_ITEM_QUALITY = 50;
+        private const int MIN_ITEM_QUALITY = 0;
+        private const int QUALITY_SINGLE_INCREMENT = 1;
+        private const int SELL_IN_DATE = 0;
+
         public GildedRose(IList<Item> Items)
         {
             this.Items = Items;
@@ -14,79 +20,82 @@ namespace csharp
         {
             foreach (var item in Items)
             {
-                if (item.Name.GetItemType() == ItemType.Legendary)
-                    continue;
+                var type = item.Name.GetItemType();
 
-                if (item.Name.GetItemType() != ItemType.Aged && item.Name.GetItemType() != ItemType.BackstagePass)
-                {
-                    if (item.Quality > 0)
-                    {
-                        if (item.Name.GetItemType() != ItemType.Legendary)
-                        {
-                            item.Quality -= 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (item.Quality < 50)
-                    {
-                        item.Quality += 1;
+                if (type == ItemType.Legendary) continue;
 
-                        if (item.Name.GetItemType() == ItemType.BackstagePass)
-                        {
-                            if (item.SellIn < 11)
-                            {
-                                if (item.Quality < 50)
-                                {
-                                    item.Quality += 1;
-                                }
-                            }
+                item.SellIn -= 1;
 
-                            if (item.SellIn < 6)
-                            {
-                                if (item.Quality < 50)
-                                {
-                                    item.Quality += 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (item.Name.GetItemType() != ItemType.Legendary)
-                {
-                    item.SellIn -= 1;
-                }
-
-                if (item.SellIn < 0)
-                {
-                    if (item.Name.GetItemType() != ItemType.Aged)
-                    {
-                        if (item.Name.GetItemType() != ItemType.BackstagePass)
-                        {
-                            if (item.Quality > 0)
-                            {
-                                if (item.Name.GetItemType() != ItemType.BackstagePass)
-                                {
-                                    item.Quality -= 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            item.Quality -= item.Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (item.Quality < 50)
-                        {
-                            item.Quality += 1;
-                        }
-                    }
-                }
+                HandleItemQuality(item, type);
             }
+        }
+
+        private void HandleItemQuality(Item item, ItemType type)
+        {
+            if (item.Quality > MAX_ITEM_QUALITY || item.Quality <= MIN_ITEM_QUALITY) return;
+
+            switch (type)
+            {
+                case ItemType.Aged:
+                    HandleAgedItemQuality(item);
+                    break;
+                case ItemType.BackstagePass:
+                    HandleBackstagePassItemQuality(item);
+                    break;
+                case ItemType.Conjured:
+                    HandleConjuredItemQuality(item);
+                    break;
+                case ItemType.Regular:
+                    HandleRegularItemQuality(item);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void HandleRegularItemQuality(Item item) 
+        {
+            if (item.SellIn < SELL_IN_DATE)
+                item.Quality -= QUALITY_SINGLE_INCREMENT * 2;
+            
+            else
+                item.Quality -= QUALITY_SINGLE_INCREMENT;
+        }
+
+        private void HandleAgedItemQuality(Item item)
+        {
+            if (item.SellIn < SELL_IN_DATE)
+                item.Quality += QUALITY_SINGLE_INCREMENT * 2;
+
+            else
+                item.Quality += QUALITY_SINGLE_INCREMENT;
+        }
+
+        private void HandleBackstagePassItemQuality(Item item) 
+        {
+            if (item.SellIn < SELL_IN_DATE)
+            {            
+                item.Quality = MIN_ITEM_QUALITY;
+                return;
+            }
+
+            if (item.SellIn <= 5)
+                item.Quality += QUALITY_SINGLE_INCREMENT * 3;
+
+            else if (item.SellIn <= 10)
+                item.Quality += QUALITY_SINGLE_INCREMENT * 2;
+
+            else
+                item.Quality += QUALITY_SINGLE_INCREMENT;
+        }
+
+        private void HandleConjuredItemQuality(Item item) 
+        {
+            if (item.SellIn < SELL_IN_DATE)
+                item.Quality -= QUALITY_SINGLE_INCREMENT * 4;
+
+            else
+                item.Quality -= QUALITY_SINGLE_INCREMENT * 2;
         }
     }
 }
