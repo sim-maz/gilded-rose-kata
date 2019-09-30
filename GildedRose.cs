@@ -10,6 +10,7 @@ namespace csharp
         private const int MIN_ITEM_QUALITY = 0;
         private const int QUALITY_SINGLE_INCREMENT = 1;
         private const int SELL_IN_DATE = 0;
+        private const int SELL_INN_DATE_INCREMENT = 1;
 
         public GildedRose(IList<Item> Items)
         {
@@ -24,7 +25,7 @@ namespace csharp
 
                 if (type == ItemType.Legendary) continue;
 
-                item.SellIn -= 1;
+                item.SellIn -= SELL_INN_DATE_INCREMENT;
 
                 HandleItemQuality(item, type);
             }
@@ -32,8 +33,6 @@ namespace csharp
 
         private void HandleItemQuality(Item item, ItemType type)
         {
-            if (item.Quality > MAX_ITEM_QUALITY || item.Quality <= MIN_ITEM_QUALITY) return;
-
             switch (type)
             {
                 case ItemType.Aged:
@@ -51,6 +50,16 @@ namespace csharp
                 default:
                     break;
             }
+
+            if (item.Quality >= MAX_ITEM_QUALITY)
+            {
+                item.Quality = MAX_ITEM_QUALITY;
+            }
+
+            if (item.Quality <= MIN_ITEM_QUALITY)
+            {
+                item.Quality = MIN_ITEM_QUALITY;
+            }
         }
 
         private void HandleRegularItemQuality(Item item) 
@@ -65,10 +74,10 @@ namespace csharp
         private void HandleAgedItemQuality(Item item)
         {
             if (item.SellIn < SELL_IN_DATE)
-                item.Quality += QUALITY_SINGLE_INCREMENT * 2;
+                item.Quality -= QUALITY_SINGLE_INCREMENT * -2;
 
             else
-                item.Quality += QUALITY_SINGLE_INCREMENT;
+                item.Quality -= QUALITY_SINGLE_INCREMENT * -1;
         }
 
         private void HandleBackstagePassItemQuality(Item item) 
@@ -79,10 +88,10 @@ namespace csharp
                 return;
             }
 
-            if (item.SellIn <= 5)
+            if (item.SellIn < 5)
                 item.Quality += QUALITY_SINGLE_INCREMENT * 3;
 
-            else if (item.SellIn <= 10)
+            else if (item.SellIn < 10)
                 item.Quality += QUALITY_SINGLE_INCREMENT * 2;
 
             else
